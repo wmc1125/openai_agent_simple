@@ -3,13 +3,16 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -44,14 +47,44 @@ func init() {
 	}
 
 	// 初始化日志记录器
-	logFile, err := os.OpenFile("requests.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	initLogger()
+}
+
+func initLogger() {
+	// 创建logs目录（如果不存在）
+	logsDir := "logs"
+	err := os.MkdirAll(logsDir, 0755)
+	if err != nil {
+		log.Fatal("创建日志目录时出错:", err)
+	}
+
+	// 生成当前日期的日志文件名
+	currentDate := time.Now().Format("2006-01-02")
+	logFileName := filepath.Join(logsDir, fmt.Sprintf("%s.log", currentDate))
+
+	// 打开日志文件
+	logFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal("打开日志文件时出错:", err)
 	}
+
+	// 初始化日志记录器
 	logger = log.New(logFile, "", log.LstdFlags)
 }
 
 func main() {
+	// 每天调用一次initLogger，确保日志文件按日期创建
+	go func() {
+		for {
+			now := time.Now()
+			next := now.Add(time.Hour * 24)
+			next = time.Date(next.Year(), next.Month(), next.Day(), 0, 0, 0, 0, next.Location())
+			duration := next.Sub(now)
+			time.Sleep(duration)
+			initLogger()
+		}
+	}()
+
 	r := gin.Default()
 
 	// 配置CORS中间件
