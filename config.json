@@ -1,0 +1,9 @@
+{
+    "openai_api_url": "https://api.bigmodel.org",
+    "openai_api_key": "your_api_key_here",
+    "prompt_modifications": {
+        "test1": "您是一个智能助手，请用中文回答问题。",
+        "世界": "这个美丽的世界",
+        "OpenAI": "OpenAI人工智能"
+    }
+}
