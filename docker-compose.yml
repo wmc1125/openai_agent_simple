@@ -6,8 +6,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./requests.log:/root/requests.log
-      - ./config.json:/root/config.json
+      - ./logs:/root/logs
+      - ./config.json:/root/config.json:ro
     environment:
       - GIN_MODE=release
     restart: unless-stopped
